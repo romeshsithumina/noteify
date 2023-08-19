@@ -3,6 +3,7 @@ import NoteModel from "../models/note";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
 
+// getting all notes
 export const getNotes: RequestHandler = async (req, res, next) => {
   try {
     const notes = await NoteModel.find().exec();
@@ -13,6 +14,7 @@ export const getNotes: RequestHandler = async (req, res, next) => {
   }
 };
 
+// getting single note
 export const getNote: RequestHandler = async (req, res, next) => {
   // /:noteId -> noteId is the param
   const noteId = req.params.noteId;
@@ -33,7 +35,8 @@ export const getNote: RequestHandler = async (req, res, next) => {
   }
 };
 
-interface createNoteBody {
+// creating notes
+interface CreateNoteBody {
   title?: string;
   text?: string;
 }
@@ -41,7 +44,7 @@ interface createNoteBody {
 export const createNote: RequestHandler<
   unknown,
   unknown,
-  createNoteBody,
+  CreateNoteBody,
   unknown
 > = async (req, res, next) => {
   const title = req.body.title;
@@ -57,6 +60,52 @@ export const createNote: RequestHandler<
       text: text,
     });
     res.status(201).json(newNote);
+  } catch (error) {
+    next(error);
+  }
+};
+
+// updating note
+interface UpdateNoteParams {
+  noteId: string;
+}
+
+interface UpdateNoteBody {
+  title?: string;
+  text?: string;
+}
+
+export const updateNote: RequestHandler<
+  UpdateNoteParams,
+  unknown,
+  UpdateNoteBody,
+  unknown
+> = async (req, res, next) => {
+  const noteId = req.params.noteId;
+  const newTitle = req.body.title;
+  const newText = req.body.text;
+
+  try {
+    if (!mongoose.isValidObjectId(noteId)) {
+      throw createHttpError(400, "Invalid note id");
+    }
+    if (!newTitle) {
+      throw createHttpError(400, "Note must have a title");
+    }
+
+    const note = await NoteModel.findById(noteId).exec();
+
+    if (!note) {
+      throw createHttpError(404, "Note not found");
+    }
+
+    note.title = newTitle;
+    note.text = newText;
+
+    // saving the update
+    const updatedNote = await note.save();
+
+    res.status(200).json(updatedNote);
   } catch (error) {
     next(error);
   }
