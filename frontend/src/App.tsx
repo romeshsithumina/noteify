@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { Note as NoteModel } from "./models/note";
 import Note from "./components/Note";
 
@@ -24,11 +24,17 @@ function App() {
   }, []);
 
   return (
-    <div className="App">
-      {notes.map((note) => (
-        <Note note={note} key={note._id} />
-      ))}
-    </div>
+    <Container>
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+        {notes.map((note) => (
+          <Note
+            className="h-[200px] w-min-[150px] transition-shadow duration-200 ease-in-out hover:shadow-md cursor-pointer"
+            note={note}
+            key={note._id}
+          />
+        ))}
+      </div>
+    </Container>
   );
 }
 
