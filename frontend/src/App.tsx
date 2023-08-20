@@ -1,25 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
 import "./App.css";
 import { Button } from "react-bootstrap";
+import { Note } from "./models/note";
 
 function App() {
-  const [counter, setCounter] = useState(0);
+  const [notes, setNotes] = useState<Note[]>([]);
 
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
+  useEffect(() => {
+    async function loadNotes() {
+      try {
+        const response = await fetch("/api/notes", {
+          method: "GET",
+        });
+        const notes = await response.json();
+        setNotes(notes);
+      } catch (error) {
+        console.error(error);
+        alert(error);
+      }
+    }
+    loadNotes();
+  }, []);
 
-        <Button onClick={() => setCounter(counter + 1)}>
-          Clicked {counter} times
-        </Button>
-      </header>
-    </div>
-  );
+  return <div className="App">{JSON.stringify(notes)}</div>;
 }
 
 export default App;

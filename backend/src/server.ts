@@ -14,6 +14,7 @@ mongoose
       console.info(`Server started on port: ${port}`);
     });
   })
-  .catch(() => {
-    console.info("Error!, Mongoose connection unsuccessful");
+  .catch((Error) => {
+    console.log("Error!, Mongoose connection unsuccessful");
+    console.log(Error);
   });
