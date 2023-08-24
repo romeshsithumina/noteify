@@ -2,18 +2,18 @@ import React, { useState, useEffect } from "react";
 import { Button, Container } from "react-bootstrap";
 import { Note as NoteModel } from "./models/note";
 import Note from "./components/Note";
+import * as NotesApi from "./network/notes_api";
+import AddNoteDialog from "./components/AddNoteDialog";
 
 function App() {
   const [notes, setNotes] = useState<NoteModel[]>([]);
+  const [showAddNoteModal, setShowAddNoteModal] = useState(false);
 
   // displays the notes
   useEffect(() => {
     async function loadNotes() {
       try {
-        const response = await fetch("/api/notes", {
-          method: "GET",
-        });
-        const notes = await response.json();
+        const notes = await NotesApi.fetchNotes();
         setNotes(notes);
       } catch (error) {
         console.error(error);
@@ -25,6 +25,9 @@ function App() {
 
   return (
     <Container>
+      <Button className="bg-blue-500" onClick={() => setShowAddNoteModal(true)}>
+        Add New Note
+      </Button>
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {notes.map((note) => (
           <Note
@@ -34,6 +37,9 @@ function App() {
           />
         ))}
       </div>
+      {showAddNoteModal && (
+        <AddNoteDialog onDismiss={() => setShowAddNoteModal(false)} />
+      )}
     </Container>
   );
 }

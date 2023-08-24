@@ -3,16 +3,47 @@ import NoteModel from "../models/note";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
 
-// getting all notes
+import { PrismaClient } from "@prisma/client";
+
+const prisma = new PrismaClient();
+
 export const getNotes: RequestHandler = async (req, res, next) => {
   try {
-    const notes = await NoteModel.find().exec();
+    const notes = await prisma.notes.findMany();
     res.status(200).json(notes);
-  } catch (error) {
-    // calling the error handler middleware
-    next(error);
+  } catch (e) {
+    next(e);
+  } finally {
+    prisma.$disconnect();
   }
 };
+
+// export const getNotes = async () => {
+//   const notes = await prisma.notes.findMany();
+//   console.log("Connected using prisma..");
+//   console.log(notes);
+// };
+
+// getNotes()
+//   .then(async () => {
+//     await prisma.$disconnect();
+//   })
+//   .catch(async (e) => {
+//     console.error(e);
+//     await prisma.$disconnect();
+//     process.exit(1);
+//   });
+
+// // getting all notes
+// export const getNotes: RequestHandler = async (req, res, next) => {
+//   try {
+//     const notes = await NoteModel.find().exec();
+//     res.status(200).json(notes);
+//   } catch (error) {
+//     // calling the error handler middleware
+//     next(error);
+//   }
+// };
 
 // getting single note
 export const getNote: RequestHandler = async (req, res, next) => {
