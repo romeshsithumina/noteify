@@ -1,13 +1,17 @@
 import React, { useState, useEffect } from "react";
-import { Button, Container } from "react-bootstrap";
+import { Button, Container, Spinner } from "react-bootstrap";
 import { Note as NoteModel } from "./models/note";
 import Note from "./components/Note";
 import * as NotesApi from "./network/notes_api";
 import AddEditNoteDialog from "./components/AddEditNoteDialog";
 import { FaPlus } from "react-icons/fa";
+import LoadingSkeleton from "./components/LoadingSkeleton";
 
 function App() {
   const [notes, setNotes] = useState<NoteModel[]>([]);
+  const [notesLoading, setNotesLoading] = useState(true);
+  const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
+
   const [showAddNoteModal, setShowAddNoteModal] = useState(false);
   const [noteToEdit, setNoteToEdit] = useState<NoteModel | null>(null);
 
@@ -15,11 +19,20 @@ function App() {
   useEffect(() => {
     async function loadNotes() {
       try {
-        const notes = await NotesApi.fetchNotes();
-        setNotes(notes);
+        setShowNotesLoadingError(false);
+        setNotesLoading(true);
+        setTimeout(async () => {
+          try {
+            const notes = await NotesApi.fetchNotes();
+            setNotes(notes);
+          } finally {
+            setNotesLoading(false);
+          }
+        }, 3000);
       } catch (error) {
         console.error(error);
-        alert(error);
+        setShowNotesLoadingError(true);
+      } finally {
       }
     }
     loadNotes();
@@ -36,8 +49,32 @@ function App() {
     }
   }
 
+  const notesGrid = (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
+      {notes.map((note) => (
+        <Note
+          className="h-[200px] w-min-[150px] transition-shadow duration-200 ease-in-out hover:shadow-md cursor-pointer"
+          note={note}
+          key={note._id}
+          onNoteClicked={setNoteToEdit}
+          onDeleteNoteClicked={deleteNote}
+        />
+      ))}
+    </div>
+  );
+
+  const loadingNotesGrid = (
+    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
+      {Array(7)
+        .fill(1)
+        .map(() => (
+          <LoadingSkeleton />
+        ))}
+    </div>
+  );
+
   return (
-    <Container className="mt-2">
+    <Container className="mt-2 flex flex-col align-middle">
       <Button
         className="bg-blue-500 h-10 mb-4 ml-auto mr-auto flex align-middle justify-center gap-4"
         onClick={() => setShowAddNoteModal(true)}
@@ -45,17 +82,15 @@ function App() {
         <FaPlus className="m-auto" />
         Add New Note
       </Button>
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-        {notes.map((note) => (
-          <Note
-            className="h-[200px] w-min-[150px] transition-shadow duration-200 ease-in-out hover:shadow-md cursor-pointer"
-            note={note}
-            key={note._id}
-            onNoteClicked={setNoteToEdit}
-            onDeleteNoteClicked={deleteNote}
-          />
-        ))}
-      </div>
+      {notesLoading && loadingNotesGrid}
+      {showNotesLoadingError && (
+        <p>Something went wrong. Please refresh the page</p>
+      )}
+      {!notesLoading && !showNotesLoadingError && (
+        <>
+          {notes.length > 0 ? notesGrid : <p>You don't have any notes yet</p>}
+        </>
+      )}
       {showAddNoteModal && (
         <AddEditNoteDialog
           onDismiss={() => setShowAddNoteModal(false)}
@@ -66,7 +101,6 @@ function App() {
           }}
         />
       )}
-
       {noteToEdit && (
         <AddEditNoteDialog
           noteToEdit={noteToEdit}
