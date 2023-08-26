@@ -13,6 +13,13 @@ async function fetchData(input: RequestInfo, init?: RequestInit) {
   }
 }
 
+export async function countNotes() {
+  const response = await fetchData("/api/notes/notesCount", {
+    method: "GET",
+  });
+  return response.json();
+}
+
 export async function fetchNotes(): Promise<Note[]> {
   const response = await fetchData("/api/notes", {
     method: "GET",

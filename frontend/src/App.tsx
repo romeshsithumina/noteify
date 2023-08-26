@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Button, Container, Spinner } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { Note as NoteModel } from "./models/note";
 import Note from "./components/Note";
 import * as NotesApi from "./network/notes_api";
@@ -8,6 +8,7 @@ import { FaPlus } from "react-icons/fa";
 import LoadingSkeleton from "./components/LoadingSkeleton";
 
 function App() {
+  const [notesCount, setNotesCount] = useState(0);
   const [notes, setNotes] = useState<NoteModel[]>([]);
   const [notesLoading, setNotesLoading] = useState(true);
   const [showNotesLoadingError, setShowNotesLoadingError] = useState(false);
@@ -21,18 +22,17 @@ function App() {
       try {
         setShowNotesLoadingError(false);
         setNotesLoading(true);
-        setTimeout(async () => {
-          try {
-            const notes = await NotesApi.fetchNotes();
-            setNotes(notes);
-          } finally {
-            setNotesLoading(false);
-          }
-        }, 3000);
+
+        const numberOfNotes: number = await NotesApi.countNotes();
+        setNotesCount(numberOfNotes);
+
+        const notes = await NotesApi.fetchNotes();
+        setNotes(notes);
       } catch (error) {
         console.error(error);
         setShowNotesLoadingError(true);
       } finally {
+        setNotesLoading(false);
       }
     }
     loadNotes();
@@ -63,9 +63,10 @@ function App() {
     </div>
   );
 
+  // rendering the loading skeleton
   const loadingNotesGrid = (
     <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 w-full">
-      {Array(7)
+      {Array(notesCount)
         .fill(1)
         .map(() => (
           <LoadingSkeleton />

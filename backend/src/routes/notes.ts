@@ -1,5 +1,6 @@
 import express from "express";
 import {
+  countNotes,
   createNote,
   deleteNote,
   getNote,
@@ -11,6 +12,8 @@ const router = express.Router();
 
 // Server endpoint
 router.get("/", getNotes);
+
+router.get("/notesCount", countNotes);
 
 router.get("/:noteId", getNote);
 

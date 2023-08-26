@@ -3,6 +3,16 @@ import NoteModel from "../models/note";
 import createHttpError from "http-errors";
 import mongoose from "mongoose";
 
+// counting notes
+export const countNotes: RequestHandler = async (req, res, next) => {
+  try {
+    const notesCount = await NoteModel.estimatedDocumentCount().exec();
+    res.status(200).json(notesCount);
+  } catch (error) {
+    next(error);
+  }
+};
+
 // getting all notes
 export const getNotes: RequestHandler = async (req, res, next) => {
   try {
