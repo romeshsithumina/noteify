@@ -5,6 +5,7 @@ const noteSchema = new Schema(
   {
     title: { type: String, required: true },
     text: { type: String },
+    userId: { type: Schema.Types.ObjectId, required: true },
   },
   { timestamps: true }
 );

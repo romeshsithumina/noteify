@@ -15,6 +15,7 @@ function App() {
   const [showLoginModal, setShowLoginModal] = useState(false);
 
   useEffect(() => {
+    // async function has used because useEffect cannot set as async
     async function fetchLoggedInUser() {
       try {
         const user = await NotesApi.getLoggedInUser();

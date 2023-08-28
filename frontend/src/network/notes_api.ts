@@ -105,7 +105,7 @@ export async function updateNote(
 }
 
 export async function deleteNote(noteId: string) {
-  await fetchData("/api/users/logout", {
-    method: "POST",
+  await fetchData("/api/notes/" + noteId, {
+    method: "DELETE",
   });
 }
