@@ -77,7 +77,7 @@ const NotesPageLoggedInView = () => {
   return (
     <>
       <Button
-        className="bg-blue-500 h-10 mb-4 ml-auto mr-auto flex align-middle justify-center gap-4"
+        className="bg-blue-500 h-10 mb-4 ml-auto mr-auto flex align-middle justify-center gap-3"
         onClick={() => setShowAddNoteModal(true)}
       >
         <FaPlus className="m-auto" />
