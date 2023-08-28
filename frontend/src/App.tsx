@@ -13,6 +13,7 @@ import NotFoundPage from "./pages/NoteFoundPage";
 
 function App() {
   const [loggedInUser, setLoggedInUser] = useState<User | null>(null);
+  const [userLoading, setUserLoading] = useState(true);
 
   const [showSignUpModal, setShowSignUpModal] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
@@ -21,10 +22,13 @@ function App() {
     // async function has used because useEffect cannot set as async
     async function fetchLoggedInUser() {
       try {
+        setUserLoading(true);
         const user = await NotesApi.getLoggedInUser();
         setLoggedInUser(user);
       } catch (error) {
         console.error(error);
+      } finally {
+        setUserLoading(false);
       }
     }
     fetchLoggedInUser();
@@ -44,7 +48,12 @@ function App() {
           <Routes>
             <Route
               path="/"
-              element={<NotesPage loggedInUser={loggedInUser} />}
+              element={
+                <NotesPage
+                  loggedInUser={loggedInUser}
+                  userLoaded={!userLoading}
+                />
+              }
             />
             <Route path="/privacy" element={<PrivacyPage />} />
             <Route path="/*" element={<NotFoundPage />} />
